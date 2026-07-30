@@ -49,6 +49,7 @@ class JobStatus(Enum):
     ERROR = auto()
     """Job failed with an error"""
 
+
 def convert_str_to_job_status(status: str) -> T.Optional[JobStatus]:
     """Convert a string to the corresponding JobStatus enum.
 
@@ -344,6 +345,4 @@ class Job:
             The server response after deletion attempt
         """
         url = self.base_url + f"/api/jobs/{self.pid}/"
-        return ApiRequest.delete(
-            url, headers=self.headers, timeout=constants.TIMEOUT
-        )
+        return ApiRequest.delete(url, headers=self.headers, timeout=constants.TIMEOUT)

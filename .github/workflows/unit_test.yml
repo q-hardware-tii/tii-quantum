@@ -21,4 +21,3 @@ jobs:
       poetry-extras: "--with test"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-

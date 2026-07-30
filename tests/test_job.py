@@ -191,9 +191,7 @@ class TestJob:
     @responses.activate
     def test_wait_for_completion_verbose(self, monkeypatch, caplog, status):
         monkeypatch.setattr("tii_quantum.job.constants.TIMEOUT", 2)
-        monkeypatch.setattr(
-            "tii_quantum.job.constants.SECONDS_BETWEEN_CHECKS", 1e-4
-        )
+        monkeypatch.setattr("tii_quantum.job.constants.SECONDS_BETWEEN_CHECKS", 1e-4)
 
         endpoint = FAKE_URL + f"/api/jobs/{FAKE_PID}/"
         statuses_list = [
