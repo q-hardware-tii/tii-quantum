@@ -18,9 +18,15 @@ The `tii-quantum` package can be installed through `pip`:
 pip install tii-quantum
 ```
 
+For Jupyter notebook support (including progress bars and rich UI), you can install the optional dependencies:
+
+```bash
+pip install "tii-quantum[notebook]"
+```
+
 ## Quick start
 
-Once installed, the provider allows to run quantum circuit computations on TII's labs.
+Once installed, the provider allows to run quantum circuit computations on remote labs using Qibo.
 
 :warning: Note: to run jobs on the remote cluster it is mandatory to own a
 validated account.
