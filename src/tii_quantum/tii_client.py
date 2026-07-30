@@ -34,7 +34,7 @@ class Client:
         pid: Process ID of the most recent job
     """
 
-    def __init__(self, token: str, url: str = "https://dev.qibo.science"):
+    def __init__(self, token: str, url: str = "https://q-cloud.tii.ae"):
         """Initialize the Client with authentication.
 
         Args:
