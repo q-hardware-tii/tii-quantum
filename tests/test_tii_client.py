@@ -67,6 +67,13 @@ class TestQiboClient:
 
         assert self.client.pid is None
 
+    def test_init_sends_client_identity_headers(self):
+        # The server gates the jobs API on x-qibo-client-name to reject the
+        # deprecated qibo-client, which sends only the version header.
+        assert self.client.headers["x-api-token"] == FAKE_TOKEN
+        assert self.client.headers["x-qibo-client-name"] == "tii-quantum"
+        assert self.client.headers["x-qibo-client-version"] == qc.version
+
     @responses.activate
     def test_check_client_server_qibo_versions_raises_assertion_error(
         self, monkeypatch
