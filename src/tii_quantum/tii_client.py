@@ -42,14 +42,9 @@ class Client:
             url: Server API URL
         """
         self.token = token
-        # x-qibo-client-name identifies which SDK distribution this is. The server
-        # uses it to reject the deprecated qibo-client, which sends only the version
-        # header (and reports the same version number, so it is otherwise
-        # indistinguishable from this client).
         self.headers = {
             "x-api-token": token,
-            "x-qibo-client-version": version,
-            "x-qibo-client-name": "tii-quantum",
+            "x-tii-quantum-version": version,
         }
         self.base_url = url
 
