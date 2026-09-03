@@ -167,13 +167,11 @@ class TestQiboClient:
         caplog.set_level(logging.INFO)
 
         endpoint = FAKE_URL + "/api/disk_quota/"
-        response_json = [
-            {
-                "user": {"email": FAKE_USER_EMAIL},
-                "kbs_left": 5,
-                "kbs_max": 10,
-            }
-        ]
+        response_json = {
+            "user": {"email": FAKE_USER_EMAIL},
+            "kbs_left": 5,
+            "kbs_max": 10,
+        }
         responses.add(responses.GET, endpoint, status=200, json=response_json)
 
         endpoint = FAKE_URL + "/api/projectquotas/"

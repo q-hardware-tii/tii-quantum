@@ -194,7 +194,7 @@ class Client:
             self.base_url + "/api/disk_quota/",
             headers=self.headers,
             timeout=constants.TIMEOUT,
-        ).json()[0]
+        ).json()
 
         projectquotas = ApiRequest.get(
             self.base_url + "/api/projectquotas/",
