@@ -21,7 +21,7 @@ circuit.draw()
 
 # read the token from file
 token_path = Path(__file__).parent / "token.txt"
-token = token_path.read_text()
+token = token_path.read_text().strip()
 
 # authenticate to server through the client instance
 client = Client(token)
@@ -29,5 +29,7 @@ client = Client(token)
 # run the circuit
 start = time.time()
 job = client.run_circuit(circuit, device="tii-sim", project="personal", nshots=150)
-print(job.result())
+result = job.result()
+
+print(result.frequencies())
 print(f"Program done in {time.time() - start:.4f}s")
