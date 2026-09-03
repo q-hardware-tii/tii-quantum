@@ -37,6 +37,15 @@ def _quota_rows(projectquotas: list[dict]) -> list[tuple]:
     ]
 
 
+def _result_status(job: dict) -> str:
+    """Summarize whether a job's measurement results are available.
+
+    As of v0.3.0 the server transfers only measurement frequencies (see
+    Job.result); there is no separate result_path/download URL anymore.
+    """
+    return "available" if job.get("frequencies") else "-"
+
+
 def _jobs_rows(jobs: list[dict], fmt) -> list[tuple]:
     """Extract job details into a flat tuple format for table rendering.
 
@@ -53,7 +62,7 @@ def _jobs_rows(jobs: list[dict], fmt) -> list[tuple]:
             fmt(job["created_at"]),
             fmt(job["updated_at"]),
             job["status"],
-            job["result_path"],
+            _result_status(job),
         )
         for job in jobs
     ]
@@ -171,7 +180,7 @@ def render_jobs(user: str, jobs: list[dict], fmt) -> None:
             fmt(job["created_at"]),
             fmt(job["updated_at"]),
             f"[{color}]{job['status']}[/{color}]",
-            job["result_path"] or "-",
+            _result_status(job),
         )
 
     console.print(Panel(table, title="Job Information", expand=False))

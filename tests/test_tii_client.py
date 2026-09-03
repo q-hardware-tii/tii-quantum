@@ -239,27 +239,32 @@ class TestQiboClient:
         formatted_creation_date = "2000-01-01 00:00:00"
         fake_update_date = "2000-01-02T00:00:00.128372Z"
         formatted_update_date = "2000-01-02 00:00:00"
-        fake_result_path = "fakeResult.Path"
         response_json = [
             {
                 "pid": FAKE_PID + "1",
-                "user": {"email": FAKE_USER_EMAIL},
                 "created_at": fake_creation_date,
                 "updated_at": fake_update_date,
                 "status": "success",
-                "result_path": fake_result_path,
+                "frequencies": {"00": 5},
             },
             {
                 "pid": FAKE_PID + "2",
-                "user": {"email": FAKE_USER_EMAIL},
                 "created_at": fake_creation_date,
                 "updated_at": fake_update_date,
                 "status": "error",
-                "result_path": "",
+                "frequencies": None,
             },
         ]
 
         responses.add(responses.GET, endpoint, status=200, json=response_json)
+
+        endpoint = FAKE_URL + "/api/accounts/me/"
+        responses.add(
+            responses.GET,
+            endpoint,
+            status=200,
+            json={"id": "1", "email": FAKE_USER_EMAIL},
+        )
 
         self.client.print_job_info()
 
@@ -276,27 +281,6 @@ class TestQiboClient:
         self.client.print_job_info()
 
         assert caplog.messages == ["No jobs found in database for user"]
-
-    @responses.activate
-    def test_print_job_info_raises_valuerror(self, caplog):
-        caplog.set_level(logging.INFO)
-
-        endpoint = FAKE_URL + "/api/jobs/"
-        response_json = [
-            {
-                "pid": FAKE_PID + "1",
-                "user": {"email": FAKE_USER_EMAIL + "1"},
-            },
-            {
-                "pid": FAKE_PID + "2",
-                "user": {"email": FAKE_USER_EMAIL + "2"},
-            },
-        ]
-
-        responses.add(responses.GET, endpoint, status=200, json=response_json)
-
-        with pytest.raises(ValueError):
-            self.client.print_job_info()
 
     @responses.activate
     def test_get_job(self, monkeypatch):

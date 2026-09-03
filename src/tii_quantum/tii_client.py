@@ -208,10 +208,7 @@ class Client:
         """Print or log information about completed jobs.
 
         Retrieves job information from the server and displays it.
-        Expects at most one user account.
-
-        Raises:
-            ValueError: If multiple user accounts are found in job list
+        The server already scopes /api/jobs/ to the authenticated user.
         """
         jobs = ApiRequest.get(
             self.base_url + "/api/jobs/",
@@ -223,15 +220,17 @@ class Client:
             logger.info("No jobs found in database for user")
             return
 
-        user_set = {job["user"]["email"] for job in jobs}
-        if len(user_set) > 1:
-            raise ValueError("Multiple accounts found in /api/jobs/.")
+        user_email = ApiRequest.get(
+            self.base_url + "/api/accounts/me/",
+            headers=self.headers,
+            timeout=constants.TIMEOUT,
+        ).json()["email"]
 
         def fmt_dt(dt: str) -> str:
             """Format ISO datetime to readable string."""
             return dateutil.parser.isoparse(dt).strftime("%Y-%m-%d %H:%M:%S")
 
-        ui.render_jobs(next(iter(user_set)), jobs, fmt_dt)
+        ui.render_jobs(user_email, jobs, fmt_dt)
 
     def get_job(self, pid: str) -> Job:
         """Retrieve an existing job by process ID.
