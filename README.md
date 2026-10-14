@@ -60,3 +60,11 @@ print(result)
 The `device` name indicates the specific system or machine that will process the
 job. The `project` name corresponds to the project or group to which the user
 belongs and which will be charged for the service usage.
+
+## MCP server
+
+If you want to interact with TII Q-Cloud from an LLM agent, the
+[`tii-quantum-mcp`](https://github.com/q-hardware-tii/tii-quantum-mcp) package
+provides an [MCP](https://modelcontextprotocol.io/) server built on top of this
+client. It lets agents submit circuits, track job status, retrieve results, and
+inspect quotas through standard MCP tools.
