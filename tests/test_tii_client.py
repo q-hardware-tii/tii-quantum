@@ -307,6 +307,17 @@ class TestQiboClient:
         self.client.delete_job(FAKE_PID)
 
     @responses.activate
+    def test_cancel_job(self):
+        endpoint = FAKE_URL + f"/api/jobs/{FAKE_PID}/cancel/"
+        responses.add(
+            responses.POST,
+            endpoint,
+            status=200,
+            json={"pid": FAKE_PID, "status": "cancelled"},
+        )
+        assert self.client.cancel_job(FAKE_PID) is JobStatus.CANCELLED
+
+    @responses.activate
     def test_delete_all_jobs(self):
         endpoint = FAKE_URL + "/api/jobs/bulk_delete/"
         response_json = {"deleted": ["jobPid1", "jobPid2"]}

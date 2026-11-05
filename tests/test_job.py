@@ -385,3 +385,45 @@ def test_result_rebuilds_measurement_outcomes_with_multiple_registers(monkeypatc
     monkeypatch.setattr(job, "_wait_for_completion", fake_wait)
     out = job.result(verbose=False)
     assert dict(out.frequencies()) == {"00": 30, "11": 20}
+
+
+def test_cancelled_status_is_recognised():
+    assert job.convert_str_to_job_status("cancelled") is JobStatus.CANCELLED
+
+
+@responses.activate
+def test_cancel_posts_and_updates_status():
+    j = Job(pid=FAKE_PID, base_url=FAKE_URL)
+    responses.add(
+        responses.POST,
+        FAKE_URL + f"/api/jobs/{FAKE_PID}/cancel/",
+        status=200,
+        json={"pid": FAKE_PID, "status": "cancelled"},
+    )
+    assert j.cancel() is JobStatus.CANCELLED
+    assert j._status is JobStatus.CANCELLED
+
+
+@responses.activate
+def test_non_live_wait_stops_on_cancelled(monkeypatch):
+    monkeypatch.setattr("tii_quantum.job.USE_RICH_UI", False)
+    j = Job(pid=FAKE_PID, base_url=FAKE_URL)
+    responses.add(
+        responses.GET,
+        FAKE_URL + f"/api/jobs/{FAKE_PID}/",
+        status=200,
+        json={"pid": FAKE_PID, "status": "cancelled", "circuit": FAKE_CIRCUIT},
+    )
+    assert j._wait_for_completion(0, verbose=False) is JobStatus.CANCELLED
+
+
+def test_result_returns_none_when_cancelled(monkeypatch):
+    j = _make_job()
+
+    def fake_wait(wait, verbose):
+        j._status = JobStatus.CANCELLED
+        j.frequencies = None
+        return JobStatus.CANCELLED
+
+    monkeypatch.setattr(j, "_wait_for_completion", fake_wait)
+    assert j.result(verbose=False) is None
