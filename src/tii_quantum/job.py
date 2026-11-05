@@ -48,6 +48,12 @@ class JobStatus(Enum):
     """Job completed successfully"""
     ERROR = auto()
     """Job failed with an error"""
+    CANCELLED = auto()
+    """Job was cancelled before it finished"""
+
+
+FINISHED_STATUSES = (JobStatus.SUCCESS, JobStatus.ERROR, JobStatus.CANCELLED)
+"""Statuses after which a job no longer changes."""
 
 
 def convert_str_to_job_status(status: str) -> T.Optional[JobStatus]:
@@ -203,6 +209,10 @@ class Job:
             logger.error("Job %s exited with error.", self.pid)
             return None
 
+        if job_status == JobStatus.CANCELLED:
+            logger.warning("Job %s was cancelled; it has no result.", self.pid)
+            return None
+
         if not self.frequencies:
             logger.error(
                 "Job %s returned no frequencies; nothing to reconstruct.", self.pid
@@ -288,7 +298,7 @@ class Job:
                         ),
                     )
 
-                if status in (JobStatus.SUCCESS, JobStatus.ERROR):
+                if status in FINISHED_STATUSES:
                     ui.set(
                         "status",
                         build_final_banner(
@@ -330,13 +340,30 @@ class Job:
                 etd=self.seconds_to_job_start,
             )
 
-            if self._status in (JobStatus.SUCCESS, JobStatus.ERROR):
+            if self._status in FINISHED_STATUSES:
                 if verbose:
                     logger.info("Job COMPLETED")
                 return self._status
 
             time.sleep(interval)
             self.refresh()
+
+    def cancel(self) -> T.Optional[JobStatus]:
+        """Stop the job on the server.
+
+        A queued or running job is stopped and its status becomes CANCELLED.
+        A job that has already finished, or is saving its results, cannot be
+        cancelled: the server answers 409 and this raises.
+
+        Returns:
+            The job status after cancellation
+        """
+        url = self.base_url + f"/api/jobs/{self.pid}/cancel/"
+        info = ApiRequest.post(
+            url, headers=self.headers, timeout=constants.TIMEOUT
+        ).json()
+        self._status = convert_str_to_job_status(info["status"])
+        return self._status
 
     def delete(self) -> requests.Response:
         """Delete a job from the server.

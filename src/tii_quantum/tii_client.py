@@ -14,7 +14,7 @@ from packaging.version import Version
 from . import constants
 from .config_logging import logger
 from .exceptions import JobPostServerError
-from .job import Job
+from .job import Job, JobStatus
 from .ui import client_ui as ui
 from .utils import ApiRequest
 
@@ -244,6 +244,19 @@ class Client:
         job = Job(base_url=self.base_url, headers=self.headers, pid=pid)
         job.refresh()
         return job
+
+    def cancel_job(self, pid: str) -> T.Optional[JobStatus]:
+        """Stop a queued or running job.
+
+        Args:
+            pid: Process ID of the job to cancel
+
+        Returns:
+            The job status after cancellation (JobStatus.CANCELLED)
+        """
+        status = Job(base_url=self.base_url, headers=self.headers, pid=pid).cancel()
+        logger.info("Cancelled job %s", pid)
+        return status
 
     def delete_job(self, pid: str):
         """Remove a job from the server.
